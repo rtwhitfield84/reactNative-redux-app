@@ -12,8 +12,14 @@ const {
 } = ReactNative
 
 class Home extends Component {
+	constructor() {
+		super();
+		this.state = { searching: false, ingredientsInput: '' };
+	}
 	searchPressed() {
-		this.props.fetchRecipes('bacon,cheese');
+		this.setState({searching: true});
+		this.props.fetchRecipes(this.state.ingredientsInput);
+		this.setState({searching: false});
 	}
 
 	recipes() {
@@ -22,18 +28,25 @@ class Home extends Component {
 
 	render() {
 		return <View style={styles.scene}>
-			<View style={styles.searchSection}>
+		<View style={styles.searchSection}>
+		<TextInput style={styles.searchInput} 
+		returnKeyType='search'
+		placeholder='Ingredients (comma delimited)'
+		onChangeText={(ingredientsInput) => this.setState({ingredientsInput})}
+		value={this.state.ingredientsInput}
+		/>
 				<TouchableHighlight style={styles.searchButton} onPress={ () => this.searchPressed() }>
 				<Text>Fetch Recipes</Text>
 				</TouchableHighlight>
 			</View>
 			<ScrollView style={styles.scrollSection}>
-				{this.recipes().map((recipe) => {
+				{!this.state.searching && this.recipes().map((recipe) => {
 					return <View key={recipe.href}>
 						<Image source={ { uri: recipe.thumbnail } } style={styles.resultImage} />
 						<Text style={styles.resultText}>{recipe.title}</Text>
 					</View>
 				})}
+				{ this.state.searching ? <Text>Searching...</Text> : null } 
 			</ScrollView>
 		</View>
 	}
@@ -50,6 +63,13 @@ const styles = StyleSheet.create({
 		borderBottomColor: '#000',
 		borderBottomWidth: 1,
 		padding: 5,
+		flexDirection: 'row',
+	},
+	searchInput: {
+		flex: 0.7,
+	},
+	searchButton: {
+		flex: 0.3,
 	},
 	scrollSection: {
 		flex: 0.8
